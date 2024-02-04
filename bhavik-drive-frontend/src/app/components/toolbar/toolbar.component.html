@@ -1,0 +1,12 @@
+<mat-toolbar>
+  <mat-toolbar-row>
+    <span>Google Drive Permission Manager</span>
+    <span class="spacer"></span>
+    <button mat-icon-button *ngIf="!isAuth()" (click)="login()" matTooltip="Login">
+      <mat-icon>login</mat-icon>
+    </button>
+    <button mat-icon-button *ngIf="isAuth()" (click)="logout()" matTooltip="Logout">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
