@@ -30,6 +30,7 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-ui:1.6.13")
 	implementation("io.springfox:springfox-swagger-ui:2.9.2")
 	implementation("io.springfox:springfox-swagger2:2.9.2")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
 	compileOnly("org.projectlombok:lombok:1.18.24")
 	annotationProcessor("org.projectlombok:lombok:1.18.24")
@@ -40,7 +41,7 @@ dependencies {
 	testImplementation("org.objenesis:objenesis:2.2")
 	testImplementation("cglib:cglib-nodep:3.2.0")
 
-	testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo")
+//	testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo")
 }
 
 tasks.withType<KotlinCompile> {

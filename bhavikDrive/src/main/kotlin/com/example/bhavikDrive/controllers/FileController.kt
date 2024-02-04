@@ -16,6 +16,7 @@ import java.io.IOException
 import kotlin.String
 
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
 
 @RestController
 @RequestMapping("/google/drive/files")
@@ -55,10 +56,10 @@ class FileController(
         httpMethod = "POST"
     )
     fun upload(
-        @RequestParam("file") file: MultipartFile,
+        @RequestPart ("file") file: MultipartFile,
         @RequestParam("path") path: String,
         @RequestParam("shared") shared: String
-    ): String {
+    ): FileModel {
         return fileService.upload(file, path, shared.toBoolean())
     }
 
@@ -89,18 +90,21 @@ class FileController(
         fileService.download(id, response.outputStream)
     }
 
-    @GetMapping("/downloads/{ids}")
+    @PostMapping("/downloads")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
         value = "Downloads a files by Ids from a Google Drive",
         notes = "Downloads Google Drive files",
         produces = MediaType.APPLICATION_JSON_VALUE,
-        httpMethod = "GET"
+        httpMethod = "POST"
     )
     @Throws(
         IOException::class
     )
-    fun downloads(@PathVariable ids: List<String>, response: HttpServletResponse) {
+    fun downloads(@RequestBody ids: List<String>, response: HttpServletResponse) {
+        val headers = HttpHeaders()
+        val filename = String.format("%s.zip", ids)
+        headers.add("Content-Disposition", "inline; filename=$filename")
         fileService.downloads(ids, response.outputStream)
     }
 

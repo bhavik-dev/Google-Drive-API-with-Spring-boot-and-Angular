@@ -2,6 +2,7 @@ package com.example.bhavikDrive.services
 
 import com.example.bhavikDrive.models.FileModel
 import com.example.bhavikDrive.models.AuthorizationDetails
+import com.example.bhavikDrive.utils.DataConstants
 import com.google.api.services.drive.model.File
 import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Service
@@ -48,7 +49,7 @@ class FileService(
         driveFileDto.name = file.name
         driveFileDto.thumbnailLink = file.thumbnailLink
         driveFileDto.size = file.getSize().toString()
-        driveFileDto.link = "https://drive.google.com/file/d/" + file.id + "/view?usp=sharing"
+        driveFileDto.link = DataConstants.GoogleDriveAPISURLS.FILE_PATH + file.id + "/view?usp=sharing"
         driveFileDto.isShared = file.shared
         googleDriveFileDTOS.add(driveFileDto)
     }
@@ -57,7 +58,7 @@ class FileService(
         googleDriveService.deleteFileOrFolderById(fileId)
     }
 
-    fun upload(file: MultipartFile, path: String = "Root", isPublic: Boolean): String {
+    fun upload(file: MultipartFile, path: String = "Root", isPublic: Boolean): FileModel {
         val authorizationDetails = AuthorizationDetails()
         if (isPublic) {
             authorizationDetails.type = "anyone"
@@ -89,6 +90,7 @@ class FileService(
         val authorizationDetails = AuthorizationDetails()
         authorizationDetails.type = "user"
         authorizationDetails.role = "reader"
+        authorizationDetails.emailAddress = gmail
         googleDriveService.createPermissionForEmail(fileId, authorizationDetails)
     }
 

@@ -1,0 +1,509 @@
+{
+	"info": {
+		"_postman_id": "06c6cb8e-3bcd-40ca-931c-7d13c10c6057",
+		"name": "Google Drive",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23802936",
+		"_collection_link": "https://lunar-desert-146806.postman.co/workspace/Backend-services~0bf52f04-6210-4ae8-95c6-8eb6c8afdba0/collection/23802936-06c6cb8e-3bcd-40ca-931c-7d13c10c6057?action=share&source=collection_link&creator=23802936"
+	},
+	"item": [
+		{
+			"name": "File",
+			"item": [
+				{
+					"name": "get all files",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete file",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files/delete/{File ID}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files",
+								"delete",
+								"{File ID}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all files from folder",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files/{Folder ID}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files",
+								"{Folder ID}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upload file",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/BhavikBabubhaiLimbas/Downloads/WhatsApp Image 2024-02-03 at 09.05.10.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files/upload?shared=false&path={Path}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files",
+								"upload"
+							],
+							"query": [
+								{
+									"key": "file",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "shared",
+									"value": "false"
+								},
+								{
+									"key": "path",
+									"value": "{Path}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "authorization by gmail Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files/{fileId}/authorization/{gmail}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files",
+								"{fileId}",
+								"authorization",
+								"{gmail}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "copy file",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files/{fileId}/copy/{folderId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files",
+								"{fileId}",
+								"copy",
+								"{folderId}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "move file",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files/{fileId}/move/{folderId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files",
+								"{fileId}",
+								"move",
+								"{folderId}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "download file",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files/download/{File ID}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files",
+								"download",
+								"{File ID}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "download all files",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    \"File ID\",\r\n    \"File ID\"\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/google/drive/files/downloads",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"files",
+								"downloads"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "[\"1RkGXzQPsD--5a2OvOpZqeAu_aL-3iGv0\", \"1peXoVeCQzdBpjF4oUMxu3VHLiWRP8lwa\"]",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Folder",
+			"item": [
+				{
+					"name": "create folder",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "folderName",
+								"value": "\"new folder\"",
+								"type": "text"
+							},
+							{
+								"key": "parentId",
+								"value": " \"\"",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders/create?folderName={Folder Name}&parentId={Parent ID}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders",
+								"create"
+							],
+							"query": [
+								{
+									"key": "folderName",
+									"value": "{Folder Name}"
+								},
+								{
+									"key": "parentId",
+									"value": "{Parent ID}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all folders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get folder by name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders/{Folder Name}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders",
+								"{Folder Name}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete folder",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders/delete/{Folder ID}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders",
+								"delete",
+								"{Folder ID}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "download folder by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders/download/{Folder ID}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders",
+								"download",
+								"{Folder ID}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "download all folder by ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/zip",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    \"Folder ID\",\r\n    \"Folder ID\"\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders/downloads",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders",
+								"downloads"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "authorization by gmail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders/{folderId}/authorization/{gmail}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders",
+								"{folderId}",
+								"authorization",
+								"{gmail}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "copy folder",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders/{fromFolderId}/copy/{toFolderId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders",
+								"{fromFolderId}",
+								"copy",
+								"{toFolderId}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "move folder",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/google/drive/folders/{fromFolderId}/move/{toFolderId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"google",
+								"drive",
+								"folders",
+								"{fromFolderId}",
+								"move",
+								"{toFolderId}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

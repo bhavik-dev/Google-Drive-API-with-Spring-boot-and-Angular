@@ -2,6 +2,8 @@ package com.example.bhavikDrive.services
 
 import com.example.bhavikDrive.configuration.BeansConfiguration
 import com.example.bhavikDrive.models.AuthorizationDetails
+import com.example.bhavikDrive.models.FileModel
+import com.example.bhavikDrive.models.FolderModel
 import com.example.bhavikDrive.utils.DataConstants
 import com.google.api.client.http.InputStreamContent
 import com.google.api.services.drive.model.File
@@ -44,6 +46,21 @@ class GoogleDriveService(
         }
     }
 
+    fun findAllFilesInAllFolderById(folderIds: List<String> = listOf("root")): List<File> {
+        return try {
+            val files: MutableList<File> = mutableListOf()
+            folderIds.forEach { folderId ->
+                val query = "'$folderId' in parents"
+                val result: FileList = beansConfiguration.getDrive().files().list().setQ(query).setPageSize(10)
+                    .setFields("nextPageToken, files(id, name, size, thumbnailLink, shared)").execute()
+                files.addAll(result.files)
+            }
+            files
+        } catch (e: IOException) {
+            throw FileNotFoundException(e.message)
+        }
+    }
+
     fun findAllFoldersInFolderById(folderId: String): List<File> {
         return try {
             val query = String.format(
@@ -66,8 +83,9 @@ class GoogleDriveService(
 
     fun downloads(fileIds: List<String>, outputStream: OutputStream) {
         try {
+            val files = mutableListOf<Unit>()
             fileIds.forEach { fileId ->
-                beansConfiguration.getDrive().files().get(fileId).executeMediaAndDownloadTo(outputStream)
+                files.add(beansConfiguration.getDrive().files().get(fileId).executeMediaAndDownloadTo(outputStream))
             }
         } catch (e: IOException) {
             throw DownloadFileOrFolderException(e.message)
@@ -91,30 +109,34 @@ class GoogleDriveService(
         }
     }
 
-    fun uploadFile(multipartFile: MultipartFile, folderName: String, authorizationDetails: AuthorizationDetails): String {
-        if (multipartFile.isEmpty) return ""
-        val file = File()
-        file.parents = listOf(getFolderId(folderName))
-        file.name = multipartFile.originalFilename
+    fun uploadFile(multipartFile: MultipartFile, folderName: String, authorizationDetails: AuthorizationDetails): FileModel {
+        val file = FileModel()
+        if (multipartFile.isEmpty) return file
+        val fileReq = File()
+        fileReq.parents = listOf(getFolderId(folderName).id)
+        fileReq.name = multipartFile.originalFilename
         return try {
             val uploadedFile: File = beansConfiguration.getDrive().files()
-                .create(file, InputStreamContent(multipartFile.contentType, ByteArrayInputStream(multipartFile.bytes)))
+                .create(fileReq, InputStreamContent(multipartFile.contentType, ByteArrayInputStream(multipartFile.bytes)))
                 .setFields("id").execute()
             if ("private" != authorizationDetails.type && "private" != authorizationDetails.role) {
                 beansConfiguration.getDrive().permissions().create(uploadedFile.id, setPermission(authorizationDetails))
             }
-            uploadedFile.id
+            file.id = uploadedFile.id
+            file.size = multipartFile.size.toString()
+            file.link =  DataConstants.GoogleDriveAPISURLS.FILE_PATH + uploadedFile.id + "/view?usp=sharing"
+            file
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
     }
 
-    fun getFolderId(folderName: String): String {
-        var parentId: String = ""
+    fun getFolderId(folderName: String): FolderModel {
+        var folder = FolderModel()
         for (name in folderName.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
-            parentId = findOrCreateFolder(parentId, name)
+            folder = findOrCreateFolder("", name)
         }
-        return parentId
+        return folder
     }
 
     fun findFolderById(folderId: String): File {
@@ -125,10 +147,10 @@ class GoogleDriveService(
         }
     }
 
-    private fun findOrCreateFolder(parentId: String, folderName: String): String {
-        val folderId = findFolderById(parentId, folderName)
-        if (folderId.isNotEmpty()) {
-            return folderId
+    private fun findOrCreateFolder(parentId: String, folderName: String): FolderModel {
+        val file = findFolderById(parentId, folderName)
+        if (file.id != null) {
+            return file
         }
         val folder = File()
         folder.mimeType = DataConstants.GoogleDriveAPISURLS.FOLDER_MIMETYPE
@@ -137,15 +159,20 @@ class GoogleDriveService(
             folder.parents = listOf(parentId)
         }
         return try {
-            beansConfiguration.getDrive().files().create(folder).setFields("id").execute().id
+            val driveFile = beansConfiguration.getDrive().files().create(folder).setFields("id").execute()
+            file.id = driveFile.id
+            file.name = folderName
+            file.link = DataConstants.GoogleDriveAPISURLS.FOLDER_PATH + driveFile.id
+            file
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
     }
 
-    private fun findFolderById(parentId: String, folderName: String): String {
-        var folderId: String = ""
-        var pageToken: String = ""
+    private fun findFolderById(parentId: String, folderName: String): FolderModel {
+        val folderId: String = ""
+        val pageToken: String = ""
+        val folder = FolderModel()
         do {
             var query = " mimeType = '${DataConstants.GoogleDriveAPISURLS.FOLDER_MIMETYPE}' "
 
@@ -162,15 +189,17 @@ class GoogleDriveService(
                     .execute()
                 for (file in result.files) {
                     if (file.name.equals(folderName, ignoreCase = true)) {
-                        folderId = file.id
+                        folder.id = file.id
+                        folder.name = file.name
+                        folder.link = DataConstants.GoogleDriveAPISURLS.FOLDER_PATH + file.id
                     }
                 }
-                pageToken = result.nextPageToken
+//                pageToken = result.nextPageToken
             } catch (e: IOException) {
                 throw RuntimeException(e)
             }
-        } while (pageToken == "" && folderName == "")
-        return folderId
+        } while (folderName == "")
+        return folder
     }
 
     fun deleteFileOrFolderById(id: String) {
@@ -218,15 +247,20 @@ class GoogleDriveService(
         }
     }
 
-    fun createFolder(folderName: String, parentId: String): String {
+    fun createFolder(folderName: String, parentId: String): FolderModel {
         val fileMetadata = File()
+        val folder = FolderModel()
         if (parentId.isNotEmpty()) {
             fileMetadata.parents = listOf(parentId)
         }
         fileMetadata.name = folderName
         fileMetadata.mimeType = DataConstants.GoogleDriveAPISURLS.FOLDER_MIMETYPE
         return try {
-            beansConfiguration.getDrive().files().create(fileMetadata).setFields("id").execute().id
+            val generatedFolder = beansConfiguration.getDrive().files().create(fileMetadata).setFields("id").execute()
+            folder.id = generatedFolder.id
+            folder.name = folderName
+            folder.link = DataConstants.GoogleDriveAPISURLS.FOLDER_PATH + generatedFolder.id
+            folder
         } catch (e: IOException) {
             throw CreateFolderException(e.message)
         }

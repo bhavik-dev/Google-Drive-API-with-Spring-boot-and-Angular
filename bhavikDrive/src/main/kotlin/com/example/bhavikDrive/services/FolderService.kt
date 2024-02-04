@@ -2,6 +2,7 @@ package com.example.bhavikDrive.services
 
 import com.example.bhavikDrive.models.FolderModel
 import com.example.bhavikDrive.models.AuthorizationDetails
+import com.example.bhavikDrive.utils.DataConstants
 import com.google.api.services.drive.model.File
 import com.google.common.io.ByteStreams
 import lombok.RequiredArgsConstructor
@@ -25,18 +26,18 @@ class FolderService(
                 val dto = FolderModel()
                 dto.id = folder.id
                 dto.name = folder.name
-                dto.link = "https://drive.google.com/drive/u/0/folders/" + folder.id
+                dto.link = DataConstants.GoogleDriveAPISURLS.FOLDER_PATH + folder.id
                 googleDriveFolderDTOS.add(dto)
             }
         })
         return googleDriveFolderDTOS
     }
 
-    fun create(folderName: String, parentId: String): String {
+    fun create(folderName: String, parentId: String): FolderModel {
         return googleDriveService.createFolder(folderName, parentId)
     }
 
-    fun getFolderId(folderName: String): String {
+    fun getFolderId(folderName: String): FolderModel {
         return googleDriveService.getFolderId(folderName)
     }
 
@@ -46,31 +47,12 @@ class FolderService(
 
     fun download(folderId: String): ByteArray {
         val files = googleDriveService.findAllFilesInFolderById(folderId)
-        return zipFiles(files)
+        return DataConstants.CommonFunction.zipFiles(files, googleDriveService)
     }
 
-    private fun zipFiles(files: List<File>): ByteArray {
-        var result: ByteArray
-
-        try {
-            ByteArrayOutputStream().use { byteArrayOutputStream ->
-                ZipOutputStream(byteArrayOutputStream).use { zipOutputStream ->
-                    for (file in files) {
-                        googleDriveService.getFileAsInputStream(file.id).use { fileInputStream ->
-                            val zipEntry = ZipEntry(file.name)
-                            zipOutputStream.putNextEntry(zipEntry)
-                            ByteStreams.copy(fileInputStream, zipOutputStream)
-                        }
-                    }
-                    zipOutputStream.close()
-                    byteArrayOutputStream.close()
-                    result = byteArrayOutputStream.toByteArray()
-                }
-            }
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-        return result
+    fun downloads(folderIds: List<String>): ByteArray {
+        val files = googleDriveService.findAllFilesInAllFolderById(folderIds)
+        return DataConstants.CommonFunction.zipFiles(files, googleDriveService)
     }
 
     fun moveFolderToAnother(fromFolderId: String, toFolderId: String) {
@@ -105,6 +87,7 @@ class FolderService(
         val authorizationDetails = AuthorizationDetails()
         authorizationDetails.type = "user"
         authorizationDetails.role = "reader"
+        authorizationDetails.emailAddress = gmail
         googleDriveService.createPermissionForEmail(folderId, authorizationDetails)
     }
 }

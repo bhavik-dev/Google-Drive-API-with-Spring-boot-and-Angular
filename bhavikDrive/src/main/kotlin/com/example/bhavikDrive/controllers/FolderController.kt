@@ -40,7 +40,7 @@ class FolderController(
         produces = MediaType.APPLICATION_JSON_VALUE,
         httpMethod = "GET"
     )
-    fun getFolderId(@PathVariable folderName: String): String {
+    fun getFolderId(@PathVariable folderName: String): FolderModel {
         return folderService.getFolderId(folderName)
     }
 
@@ -52,8 +52,8 @@ class FolderController(
         produces = MediaType.APPLICATION_JSON_VALUE,
         httpMethod = "POST"
     )
-    fun create(@RequestParam("folderName") folderName: String, @RequestParam("parentId") parentId: String): String {
-        return "{id: " + folderService.create(folderName, parentId) + "}"
+    fun create(@RequestParam("folderName") folderName: String, @RequestParam("parentId") parentId: String): FolderModel {
+        return folderService.create(folderName, parentId)
     }
 
     @DeleteMapping("/delete/{id}")
@@ -84,6 +84,22 @@ class FolderController(
             .body(folderService.download(id))
     }
 
+    @PostMapping(value = ["/downloads"], produces = ["application/zip"])
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(
+        value = "Downloads list of folders by Id from a Google Drive",
+        notes = "Downloads list of Google Drive folders",
+        produces = MediaType.ALL_VALUE,
+        httpMethod = "POST"
+    )
+    fun downloads(@RequestBody ids: List<String>): ResponseEntity<ByteArray> {
+        val headers = HttpHeaders()
+        val filename = String.format("%s.zip", ids)
+        headers.add("Content-Disposition", "inline; filename=$filename")
+        return ResponseEntity.ok().headers(headers).contentType(MediaType.valueOf("application/zip"))
+            .body(folderService.downloads(ids))
+    }
+
     @GetMapping("/{fromFolderId}/move/{toFolderId}")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
@@ -108,13 +124,13 @@ class FolderController(
         folderService.copyFolderToAnother(fromFolderId, toFolderId)
     }
 
-    @PostMapping("/{folderId}/authorization/{gmail}")
+    @GetMapping("/{folderId}/authorization/{gmail}")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
         value = "Authorizes a folder for a gmail in a Google Drive",
         notes = "Authorizes Google Drive folder for a gmail",
         produces = MediaType.APPLICATION_JSON_VALUE,
-        httpMethod = "POST"
+        httpMethod = "GET"
     )
     fun authorization(@PathVariable folderId: String, @PathVariable gmail: String) {
         folderService.shareFolder(folderId, gmail)
