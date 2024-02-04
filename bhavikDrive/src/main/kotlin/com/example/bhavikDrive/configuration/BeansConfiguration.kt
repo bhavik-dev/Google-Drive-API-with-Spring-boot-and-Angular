@@ -48,7 +48,7 @@ class BeansConfiguration(
     }
 
     @Throws(IOException::class)
-    private fun getCredentials(httpTransport: NetHttpTransport): Credential? {
+    private fun getCredentials(httpTransport: NetHttpTransport): Credential {
 
         val inputStream = BeansConfiguration::class.java.getResourceAsStream(CREDENTIALS_FILE_PATH)
             ?: throw FileNotFoundException("Resource not found: $CREDENTIALS_FILE_PATH")
